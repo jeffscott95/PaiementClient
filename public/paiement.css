@@ -1,0 +1,166 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+body {
+  background: url("yas.png") no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+/* Barre utilisateur en haut */
+.top-bar {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.username {
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+}
+
+a.btn-logout {
+  display: inline-block;
+  background: #c0392b;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.3s ease;
+  box-shadow: 0px 3px 6px rgba(0,0,0,0.3);
+}
+
+a.btn-logout:hover {
+  background: #e74c3c;
+  transform: scale(1.05);
+}
+
+/* Message de bienvenue */
+.welcome {
+  font-size: 3.2rem;
+  font-weight: bold;
+  color: #fff;
+  animation: slideIn 2s ease-out forwards;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+  opacity: 0;
+}
+
+@keyframes slideIn {
+  0% { transform: translateX(-100%); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+/* Bouton principal */
+.btn-pay {
+  background-color: #004080;
+  color: #FFD700;
+  border: none;
+  padding: 15px 35px;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
+  opacity: 0;
+  animation: slideUp 2s ease-out forwards;
+  animation-delay: 2s;
+}
+
+.btn-pay:hover {
+  background-color: #0066cc;
+  transform: scale(1.05);
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(100px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Formulaire de paiement */
+.payment-form {
+  display: none;
+  background: rgba(255,255,255,0.9);
+  color: #333;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+  text-align: left;
+  width: 350px;
+  animation: fadeIn 1s ease forwards;
+}
+
+.payment-form h3 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #004080;
+}
+
+.payment-form label {
+  font-weight: bold;
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.payment-form input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.payment-form button {
+  background: #004080;
+  color: #FFD700;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+}
+
+.payment-form button:hover {
+  background: #0066cc;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Footer */
+.footer {
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+  width: 100%;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(0, 64, 128, 0.7);
+  padding: 10px;
+}
+
+.footer strong {
+  color: #FFD700;
+}
