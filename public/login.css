@@ -147,6 +147,21 @@ button:hover {
     background: linear-gradient(135deg, #003366, #005bb5);
     transform: translateY(-2px) scale(1.02);
 }
+.position {
+    text-align: center;  /* centre horizontalement */
+    margin-top: 10px;    /* espace au-dessus */
+}
+
+.position a {
+    text-decoration: none;   /* enlève le soulignement */
+    color: #007bff;          /* couleur bleu bootstrap */
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.position a:hover {
+    color: #0056b3;  /* couleur au survol */
+}
 
 /* Animation d'apparition */
 @keyframes fadeIn {

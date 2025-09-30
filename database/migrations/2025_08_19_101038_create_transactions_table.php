@@ -20,6 +20,7 @@ return new class extends Migration
     $table->string('description')->nullable();
     $table->string('statut')->default('EN_ATTENTE'); // EN_ATTENTE, SUCCES, ECHEC
     $table->string('message')->nullable();
+     $table->string('ref')->nullable();
     $table->timestamps();
 });
 

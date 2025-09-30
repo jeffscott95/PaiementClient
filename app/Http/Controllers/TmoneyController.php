@@ -8,82 +8,83 @@ use Illuminate\Support\Facades\Http;
 
 class TmoneyController extends Controller
 {
-    // Affichage formulaire
-    public function formPaiement() {
+    // Affichage du formulaire de paiement
+    public function formPaiement()
+    {
         return view('paiement');
     }
 
-    // Lancer paiement
-    public function initPaiement(Request $request) {
-        $idRequete = "payclient@" . uniqid();
+    // Initialiser un paiement
+    public function initPaiement(Request $request)
+    {
+        // dd($request->numeroClient);
+        $idRequete   = "payclient@" . uniqid();
         $refCommande = "CMD" . time();
 
-        // Sauvegarde DB
+        // Sauvegarde en base
         $transaction = Transaction::create([
-            'idRequete' => $idRequete,
-            'refCommande' => $refCommande,
-            'numeroClient' => $request->numeroClient,
-            'montant' => $request->montant,
-            'description' => "Paiement commande",
-            'statut' => 'ECHEC'
+            'idRequete'    => $idRequete,
+            'refCommande'  => $refCommande,
+            'numeroClient' => "228" . $request->numeroClient, // ajout indicatif
+            'montant'      => $request->montant,
+            'description'  => "Paiement commande",
+            'statut'       => 'ECHEC',
+            'ref'          => null // ajouté : référence externe vide au départ
         ]);
 
-        // Requête vers Suisco
+        // Préparation payload pour Suisco
         $payload = [
-            "idRequete" => $idRequete,
-            "numeroClient" => $request->numeroClient,
-            "montant" => $request->montant,
-            "refCommande" => $refCommande,
-            "dateHeureRequete" => now()->format('Y-m-d H:i:s'),
-            "description" => "Paiement commande"
+            "idRequete"       => $idRequete,
+            "numeroClient"    => "228" . $request->numeroClient,
+            "montant"         => $request->montant,
+            "refCommande"     => $refCommande,
+            "dateHeureRequete"=> now()->format('Y-m-d H:i:s'),
+            "description"     => "Paiement commande"
         ];
 
+        // Appel API Suisco
         $response = Http::post("https://pay.suisco.net/api/push-ussd/tmoney/request", $payload);
+        $result   = $response->json();
 
-        $result = $response->json();
-    if (isset($result['code']) && $result['code'] == "2000") {
-         $transaction->statut = 'EN ATTENTE';
-    } else {
-        $transaction->statut = 'ECHEC';
-    }
+        // Vérifie le code de retour
+        if (isset($result['code']) && $result['code'] == "2000") {
+            $transaction->statut = 'EN ATTENTE';
+        } else {
+            $transaction->statut = 'ECHEC';
+        }
 
-
-        // Mettre à jour statut en fonction du retour
+        // Mise à jour transaction
         $transaction->update([
-            'message' => $result['message'] ?? 'En attente traitement'
+            'message' => $result['message'] ?? 'En attente traitement',
+            'ref'     => $result['refTmoney'] ?? null // si API renvoie une référence
         ]);
 
         return response()->json($result);
     }
 
     // Callback Suisco
-    public function callback(Request $request) {
+    public function callback(Request $request)
+    {
         $idRequete = $request->idRequete;
 
         $transaction = Transaction::where('idRequete', $idRequete)->first();
         if ($transaction) {
             $transaction->update([
                 'statut' => $request->statutRequete ?? 'ECHEC',
-                'message' => $request->message
+                'message'=> $request->message,
+                'ref'    => $request->refTmoney ?? $transaction->ref // on stocke la ref envoyée par TMoney
             ]);
         }
 
         return response()->json(["status" => "ok"]);
     }
 
-    // Vérification manuelle
-    public function checkTransaction($idRequete) {
-        $payload = ["idRequete" => $idRequete];
-
+    // Vérification manuelle d'une transaction
+    public function checkTransaction($idRequete)
+    {
+        $payload  = ["idRequete" => $idRequete];
         $response = Http::post("https://pay.suisco.net/api/push-ussd/tmoney/check-after-callback", $payload);
 
         return $response->json();
     }
-
-
-          
 }
-
-
-
- 

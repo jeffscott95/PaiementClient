@@ -7,7 +7,8 @@ body, html {
 }
 
 body {
-  background: url("yas.png") no-repeat center center/cover;
+  /* background: url("yas.png") no-repeat center center/cover; */
+  background-color: #0066cc;
   display: flex;
   flex-direction: column;
   justify-content: center;

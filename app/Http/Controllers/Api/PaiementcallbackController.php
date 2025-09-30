@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Api;
+use App\Http\Controllers\Controller;   
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Log;
 
 
+   
+
 class PaiementCallbackController extends Controller
 {
-    /**
-     * GET : Vérification d'une transaction via ID
-     */
+    
     public function getStatus(Request $request)
     {
         $idRequete = $request->query('idRequete');
@@ -27,61 +27,76 @@ class PaiementCallbackController extends Controller
         return response()->json([
             "success" => true,
             "status"  => $transaction->statut,
-            "message" => $transaction->message
+            "message" => $transaction->message,
+            "ref"     => $transaction->ref // nouvelle référence ajoutée dans la réponse
         ]);
     }
 
-   
+    /**
+     * POST : Callback reçu de Suisco
+     */
     public function callback(Request $request)
     {
         try {
             Log::info("Callback Paiement reçu", $request->all());
 
-            
             $idRequete = $request->input("idRequete");
             $code      = $request->input("code");
             $statut    = $request->input("statutRequete");
             $montant   = $request->input("montant");
             $refTmoney = $request->input("refTmoney");
 
-            if (!$idRequete || !$code) {
-                return response()->json(["success" => false, "message" => "Requête invalide"], 400);
-            }
-
             $transaction = Transaction::where('idRequete', $idRequete)->first();
             if (!$transaction) {
-                return response()->json(["success" => false, "message" => "Transaction inconnue"], 404);
+                Log::warning("Transaction inconnue pour idRequete={$idRequete}");
+                
             }
 
-            // Empêche la double exécution
-            if ($transaction->statut === "completed") {
-                return response()->json(["success" => true, "message" => "Déjà traité"]);
-            }
+           
 
             // Succès
             if ($statut === "SUCCES" && $code === "2002") {
                 $transaction->update([
-                    "statut"      => "completed",
+                    "statut"      => $statut,
                     "code"        => $code,
-                    "refCommande" => $refTmoney ?? $transaction->refCommande,
-                    "message"     => "Paiement confirmé"
+                    "refCommande" => $transaction->refCommande,
+                    "ref"         => $refTmoney ?? $transaction->ref,
+                    "message" => $request->input("message", "Paiement reussi"),
+
                 ]);
 
-                return response()->json(["success" => true, "message" => "Paiement enregistré"]);
+                Log::info("Paiement enregistré avec succès", [
+                    "idRequete" => $idRequete,
+                    "statut"      => $statut,
+                    "code"        => $code,
+                    "refCommande" => $transaction->refCommande,
+                    "montant"   => $montant,
+                    "ref"       => $refTmoney
+                ]);
+            
             }
 
             // Échec
             $transaction->update([
-                "statut"  => "failed",
+                "statut"  => $statut,
                 "code"    => $code,
-                "message" => $request->input("message", "Paiement échoué")
+                "message" => $request->input("message", "Paiement échoué"),
+                "ref"     => $refTmoney ?? $transaction->ref
             ]);
 
-            return response()->json(["success" => true, "message" => "Paiement échoué"]);
+            Log::error("Paiement échoué", [
+                "idRequete" => $idRequete,
+                "code"      => $code,
+                "statut"    => $statut,
+                "ref"       => $refTmoney
+            ]);
+            
 
         } catch (\Exception $e) {
             Log::error("Erreur Callback Paiement : " . $e->getMessage());
-            return response()->json(["success" => false, "message" => $e->getMessage()], 500);
+            return;
         }
+        
     }
+
 }

@@ -8,7 +8,8 @@ class Transaction extends Model
 {
     protected $fillable = [
         'idRequete', 'refCommande', 'numeroClient',
-        'montant', 'description', 'statut', 'message'
+        'montant', 'description', 'statut', 'message', 'ref'
     ];
 }
 
+ 
