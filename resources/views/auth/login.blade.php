@@ -23,12 +23,7 @@
         <form method="POST" action="/login">
             @csrf
 
-            <!-- Nom d'utilisateur -->
-            <label>Nom d’utilisateur</label>
-            <div class="input-group mb-3">
-                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
-            </div>
+          
 
             <!-- Numéro de téléphone avec drapeau et icône -->
             <label>Numéro de téléphone</label>
